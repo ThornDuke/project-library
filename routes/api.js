@@ -21,13 +21,21 @@ module.exports = function (app) {
         if (err) {
           res.json({ error: err });
         }
-        res.send(data);
+        let books = data.map((item) => ({
+          comments: item.comments,
+          _id: item._id,
+          title: item.title || "",
+          commentcount: item.comments.length,
+          __v: item.__v,
+        }));
+
+        res.send(books);
       });
     })
 
     .post(function (req, res) {
       let title = req.body.title;
-      if (title == undefined) {
+      if (!title) {
         res.send("missing required field title");
       }
       //response will contain new book object including at least _id and title
@@ -48,6 +56,17 @@ module.exports = function (app) {
     .get(function (req, res) {
       let bookid = req.params.id;
       //json res format: {"_id": bookid, "title": book_title, "comments": [comment,comment,...]}
+      queries.findOneBook(bookid, (err, data) => {
+        if (err) {
+          res.json({ error: err });
+        }
+        const book = {
+          _id: data._id,
+          title: data.title,
+          comments: data.comments,
+        };
+        res.send(book);
+      });
     })
 
     .post(function (req, res) {
