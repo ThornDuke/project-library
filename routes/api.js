@@ -9,25 +9,34 @@
 "use strict";
 
 const DBqueries = require("./queries");
-const dbQr = new DBqueries();
+const queries = new DBqueries();
 
 module.exports = function (app) {
   app
     .route("/api/books")
     .get(function (req, res) {
-      const result = dbQr.findAllBooks((err, data) => {
+      //response will be array of book objects
+      //json res format: [{"_id": bookid, "title": book_title, "commentcount": num_of_comments },...]
+      queries.findAllBooks((err, data) => {
         if (err) {
           res.json({ error: err });
         }
         res.send(data);
       });
-      //response will be array of book objects
-      //json res format: [{"_id": bookid, "title": book_title, "commentcount": num_of_comments },...]
     })
 
     .post(function (req, res) {
       let title = req.body.title;
-      //response will contain new book object including atleast _id and title
+      if (title == undefined) {
+        res.send("missing required field title");
+      }
+      //response will contain new book object including at least _id and title
+      queries.addOneBook(title, (err, data) => {
+        if (err) {
+          res.json({ error: err });
+        }
+        res.send({ title: data.title, _id: data._id });
+      });
     })
 
     .delete(function (req, res) {
