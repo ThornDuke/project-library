@@ -19,7 +19,7 @@ module.exports = function (app) {
       //json res format: [{"_id": bookid, "title": book_title, "commentcount": num_of_comments },...]
       queries.findAllBooks((err, data) => {
         if (err) {
-          res.json({ error: err });
+          res.send(err);
         }
         let books = data.map((item) => ({
           comments: item.comments,
@@ -35,20 +35,22 @@ module.exports = function (app) {
 
     .post(function (req, res) {
       let title = req.body.title;
-      if (!title) {
-        res.send("missing required field title");
-      }
-      //response will contain new book object including at least _id and title
       queries.addOneBook(title, (err, data) => {
         if (err) {
-          res.json({ error: err });
+          res.send(err);
         }
         res.send({ title: data.title, _id: data._id });
       });
     })
 
     .delete(function (req, res) {
-      //if successful response will be 'complete delete successful'
+      // if successful response will be 'complete delete successful'
+      queries.deleteAllBooks((err, data) => {
+        if (err) {
+          res.send(err);
+        }
+        res.send(data);
+      });
     });
 
   app
@@ -58,7 +60,7 @@ module.exports = function (app) {
       //json res format: {"_id": bookid, "title": book_title, "comments": [comment,comment,...]}
       queries.findOneBook(bookid, (err, data) => {
         if (err) {
-          res.json({ error: err });
+          res.send(err);
         }
         const book = {
           _id: data._id,
@@ -72,11 +74,28 @@ module.exports = function (app) {
     .post(function (req, res) {
       let bookid = req.params.id;
       let comment = req.body.comment;
-      //json res format same as .get
+      //json res format: {"_id": bookid, "title": book_title, "comments": [comment,comment,...]}
+      queries.updateOneBook(bookid, comment, (err, data) => {
+        if (err) {
+          res.send(err);
+        }
+        const book = {
+          _id: data._id,
+          title: data.title,
+          comments: data.comments,
+        };
+        res.send(book);
+      });
     })
 
     .delete(function (req, res) {
       let bookid = req.params.id;
       //if successful response will be 'delete successful'
+      queries.deleteOneBook(bookid, (err, data) => {
+        if (err) {
+          res.send(err);
+        }
+        res.send(data);
+      });
     });
 };
