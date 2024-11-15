@@ -40,34 +40,37 @@ module.exports = function queries() {
 
   this.updateOneBook = (id, comment, done) => {
     bookModel.findById(id, (err, data) => {
-      if (err) {
-        done(err);
+      if (!comment) {
+        done("missing required field comment");
+      } else if (err || data == null) {
+        done("no book exists");
       } else {
         let comments = data.comments;
         comments.push(comment);
-        bookModel.updateOne(
-          { _id: id },
-          { comments: comments },
-          (err, updatedData, alpha, beta, gamma) => {
-            if (err) {
-              done(err);
-            } else {
-              done(null, data);
-            }
+        bookModel.updateOne({ _id: id }, { comments: comments }, (err) => {
+          if (err) {
+            done(err);
+          } else {
+            done(null, data);
           }
-        );
+        });
       }
     });
   };
 
   this.deleteOneBook = (id, done) => {
-    bookModel.deleteOne({ _id: id }).then((res) => {
-      if (res.ok != 1) {
-        done("an error occurred while deleting a book");
-      } else {
-        done(null, "delete successful");
-      }
-    });
+    bookModel
+      .deleteOne({ _id: id })
+      .then((res) => {
+        if (res.deletedCount == 0) {
+          done("no book exists");
+        } else {
+          done(null, "delete successful");
+        }
+      })
+      .catch((err) => {
+        done("no book exists");
+      });
   };
 
   this.deleteAllBooks = (done) => {
