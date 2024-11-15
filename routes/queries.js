@@ -13,8 +13,8 @@ module.exports = function queries() {
 
   this.findOneBook = (id, done) => {
     bookModel.findById(id, (err, data) => {
-      if (err) {
-        done(err);
+      if (err || data == null) {
+        done("no book exists");
       } else {
         done(null, data);
       }

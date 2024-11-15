@@ -20,16 +20,16 @@ module.exports = function (app) {
       queries.findAllBooks((err, data) => {
         if (err) {
           res.send(err);
+        } else {
+          let books = data.map((item) => ({
+            comments: item.comments,
+            _id: item._id,
+            title: item.title || "",
+            commentcount: item.comments.length,
+            __v: item.__v,
+          }));
+          res.send(books);
         }
-        let books = data.map((item) => ({
-          comments: item.comments,
-          _id: item._id,
-          title: item.title || "",
-          commentcount: item.comments.length,
-          __v: item.__v,
-        }));
-
-        res.send(books);
       });
     })
 
@@ -38,8 +38,9 @@ module.exports = function (app) {
       queries.addOneBook(title, (err, data) => {
         if (err) {
           res.send(err);
+        } else {
+          res.send({ title: data.title, _id: data._id });
         }
-        res.send({ title: data.title, _id: data._id });
       });
     })
 
@@ -48,8 +49,9 @@ module.exports = function (app) {
       queries.deleteAllBooks((err, data) => {
         if (err) {
           res.send(err);
+        } else {
+          res.send(data);
         }
-        res.send(data);
       });
     });
 
@@ -61,13 +63,14 @@ module.exports = function (app) {
       queries.findOneBook(bookid, (err, data) => {
         if (err) {
           res.send(err);
+        } else {
+          const book = {
+            _id: data._id,
+            title: data.title,
+            comments: data.comments,
+          };
+          res.send(book);
         }
-        const book = {
-          _id: data._id,
-          title: data.title,
-          comments: data.comments,
-        };
-        res.send(book);
       });
     })
 
@@ -78,13 +81,14 @@ module.exports = function (app) {
       queries.updateOneBook(bookid, comment, (err, data) => {
         if (err) {
           res.send(err);
+        } else {
+          const book = {
+            _id: data._id,
+            title: data.title,
+            comments: data.comments,
+          };
+          res.send(book);
         }
-        const book = {
-          _id: data._id,
-          title: data.title,
-          comments: data.comments,
-        };
-        res.send(book);
       });
     })
 
@@ -94,8 +98,9 @@ module.exports = function (app) {
       queries.deleteOneBook(bookid, (err, data) => {
         if (err) {
           res.send(err);
+        } else {
+          res.send(data);
         }
-        res.send(data);
       });
     });
 };
